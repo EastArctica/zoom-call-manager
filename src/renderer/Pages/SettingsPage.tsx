@@ -4,10 +4,9 @@
 */
 
 import { useState } from 'react';
-import { useSettings } from '../context/SettingsContext';
+import { useSettings, Settings } from '../context/SettingsContext';
 import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import './SettingsPage.css';
-import { Settings } from '../../main/settings';
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettings();
