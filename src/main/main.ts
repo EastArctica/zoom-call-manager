@@ -12,53 +12,11 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { readFile, writeFile } from 'fs/promises';
-import { Registry } from 'rage-edit';
 import { parsePhoneNumber } from 'react-phone-number-input';
 import path from 'path';
 import { ZoomCallManagerMessage, ZoomCallManagerType } from '../shared/ipc';
 
 async function setupAssociations() {
-  // Windows registering of 'tel' is broken in electron and needs to be done this way
-  if (process.platform === 'win32') {
-    try {
-      await Registry.set(
-        'HKCU\\Software\\Zoom Call Manager\\Capabilities',
-        'ApplicationName',
-        'Zoom Call Manager',
-      );
-      await Registry.set(
-        'HKCU\\Software\\Zoom Call Manager\\Capabilities',
-        'ApplicationDescription',
-        'Zoom Call Manager',
-      );
-      await Registry.set(
-        'HKCU\\Software\\Zoom Call Manager\\Capabilities\\URLAssociations',
-        'tel',
-        'Zoom Call Manager.tel',
-      );
-      await Registry.set(
-        'HKCU\\Software\\Classes\\Zoom Call Manager.tel\\DefaultIcon',
-        '',
-        process.execPath,
-      );
-      await Registry.set(
-        'HKCU\\Software\\Classes\\Zoom Call Manager.tel\\shell\\open\\command',
-        '',
-        `"${process.execPath}" "%1"`,
-      );
-      await Registry.set(
-        'HKCU\\Software\\RegisteredApplications',
-        'Zoom Call Manager',
-        'Software\\Zoom Call Manager\\Capabilities',
-      );
-    } catch (e) {
-      dialog.showErrorBox(
-        'An error occurred',
-        `Failed to set registry keys for tel handler.\n\n${e}`,
-      );
-    }
-  }
-
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
       app.setAsDefaultProtocolClient('tel', process.execPath, [

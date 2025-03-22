@@ -172,6 +172,9 @@
       "provider": "github",
       "owner": "EastArctica",
       "repo": "zoom-call-manager"
+    },
+    "nsis": {
+      "include": "release/installer.nsh"
     }
   },
   "devEngines": {
