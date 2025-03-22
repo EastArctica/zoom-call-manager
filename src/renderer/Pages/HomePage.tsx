@@ -226,7 +226,7 @@ export default function HomePage() {
             onChange={handleDefaultCallerIdChange}
             className="select-input"
           >
-            <option value="">None</option>
+            <option value="">Zoom Default</option>
             {availableCallerIds.map((id) => (
               <option key={id} value={id}>
                 {parsePhoneNumber(id)?.formatInternational() || id}
