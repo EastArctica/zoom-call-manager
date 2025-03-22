@@ -215,13 +215,15 @@ app.on('window-all-closed', () => {
 
 // Note that this function does *not* assume that the argument is a valid deep link.
 async function deepLinkHandler(arg: string): Promise<boolean> {
-  console.log('Got arg');
   const url = new URL(arg);
-  console.log('Got url');
   if (!['zoom-call-manager:', 'tel:', 'callto:'].includes(url.protocol)) {
     return false;
   }
-  console.log(url);
+
+  if (url.pathname == '') {
+    return false;
+  }
+
   switch (url.protocol) {
     case 'zoom-call-manager:': {
       zoomCodeURL = arg;
@@ -333,7 +335,6 @@ async function main() {
       console.error('Failed to parse deep link:', lastArg, e);
     });
     if (shouldExit) {
-      console.log('Exiting early');
       process.exit();
     }
 
@@ -348,7 +349,7 @@ async function main() {
           if (mainWindow === null) createWindow();
         });
       })
-      .catch(console.log);
+      .catch(console.error);
   }
 }
 
