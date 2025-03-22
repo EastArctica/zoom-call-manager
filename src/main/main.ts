@@ -221,10 +221,10 @@ app.on('window-all-closed', () => {
 });
 
 // Note that this function does *not* assume that the argument is a valid deep link.
-async function deepLinkHandler(arg: string) {
+async function deepLinkHandler(arg: string): Promise<boolean> {
   const url = new URL(arg);
   if (!['zoom-call-manager:', 'tel:', 'callto:'].includes(url.protocol)) {
-    return;
+    return false;
   }
   switch (url.protocol) {
     case 'zoom-call-manager:': {
@@ -238,9 +238,8 @@ async function deepLinkHandler(arg: string) {
           `Failed to read settings\n\n${e}`,
         );
       });
-      console.log(url);
 
-      const phoneNumberStr = url.pathname;
+      const phoneNumberStr = decodeURIComponent(url.pathname);
       const parsedPhoneNumber = parsePhoneNumber(phoneNumberStr, 'US');
       if (parsedPhoneNumber) {
         const e164Number = parsedPhoneNumber.format('E.164');
@@ -249,9 +248,9 @@ async function deepLinkHandler(arg: string) {
           settings.mappingRules || [],
         );
         const zoomNumber = matchingRule?.zoomNumber || settings.defaultCallerId;
-        // shell.openExternal(
-        //   `zoomphonecall://${url.pathname}?callerid=${zoomNumber}`,
-        // );
+        shell.openExternal(
+          `zoomphonecall://${encodeURIComponent(phoneNumberStr)}?callerid=${encodeURIComponent(zoomNumber)}`,
+        );
 
         // Save call to call log
         (settings.callLog ||= []).push({
@@ -271,9 +270,11 @@ async function deepLinkHandler(arg: string) {
       }
 
       await writeSettings(settings);
-      process.exit();
+      return true;
     }
   }
+
+  return false;
 }
 
 function findMatchingRule(
@@ -306,40 +307,46 @@ function findMatchingRule(
   return null;
 }
 
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    let lastArg = commandLine.pop() as string;
-    deepLinkHandler(lastArg);
+async function main() {
+  const gotTheLock = app.requestSingleInstanceLock();
+  if (!gotTheLock) {
+    app.quit();
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      let lastArg = commandLine.pop() as string;
+      deepLinkHandler(lastArg);
 
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
 
-      if (zoomCodeURL !== null) {
-        mainWindow.webContents.send('zoom-call-manager', {
-          type: ZoomCallManagerType.RESPONSE_ZOOM_CODE,
-          data: zoomCodeURL,
-        } as ZoomCallManagerMessage);
+        if (zoomCodeURL !== null) {
+          mainWindow.webContents.send('zoom-call-manager', {
+            type: ZoomCallManagerType.RESPONSE_ZOOM_CODE,
+            data: zoomCodeURL,
+          } as ZoomCallManagerMessage);
+        }
       }
+    });
+
+    let lastArg = process.argv.pop() as string;
+    if (await deepLinkHandler(lastArg)) {
+      process.exit();
     }
-  });
 
-  let lastArg = process.argv.pop() as string;
-  deepLinkHandler(lastArg);
-
-  // Create mainWindow, load the rest of the app, etc...
-  app
-    .whenReady()
-    .then(() => {
-      createWindow();
-      app.on('activate', () => {
-        // On macOS it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
-        if (mainWindow === null) createWindow();
-      });
-    })
-    .catch(console.log);
+    // Create mainWindow, load the rest of the app, etc...
+    app
+      .whenReady()
+      .then(() => {
+        createWindow();
+        app.on('activate', () => {
+          // On macOS it's common to re-create a window in the app when the
+          // dock icon is clicked and there are no other windows open.
+          if (mainWindow === null) createWindow();
+        });
+      })
+      .catch(console.log);
+  }
 }
+
+void main();
