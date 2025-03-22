@@ -169,7 +169,6 @@ export default function HomePage() {
           type="warning"
           message="You have no caller IDs configured. Please add caller IDs in the Settings page."
           actionText="Go to Settings"
-          // onActionClick={() => window.electron.ipcRenderer.sendMessage('navigate', '/settings')}
         />
       )}
 
