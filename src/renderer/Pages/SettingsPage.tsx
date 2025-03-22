@@ -45,6 +45,7 @@ export default function SettingsPage() {
     delete cleanedSettings.zoomAccessToken;
     delete cleanedSettings.zoomRefreshToken;
     delete cleanedSettings.zoomTokenExpiration;
+    delete cleanedSettings.callLog;
 
     const settingsJson = JSON.stringify(cleanedSettings, null, 2);
     const blob = new Blob([settingsJson], { type: 'application/json' });
