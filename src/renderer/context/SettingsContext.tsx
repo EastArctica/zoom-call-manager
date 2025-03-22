@@ -27,6 +27,7 @@ export type CallLogEntry = {
   to: string;
   callerID: string;
   matched: boolean;
+  matchID?: string;
   at: number;
 };
 

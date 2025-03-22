@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { useSettings, CallLogEntry } from '../context/SettingsContext';
 import './CallLogPage.css';
 
-export interface CallLogPageProps {
+export interface CallLogPageProps {}
 
-};
-
-export default function CallLogPage({ } : CallLogPageProps) {
+export default function CallLogPage({}: CallLogPageProps) {
   const { settings } = useSettings();
   const [callLog, setCallLog] = useState<CallLogEntry[]>([]);
   const [filterMatched, setFilterMatched] = useState<string>('all'); // 'all', 'matched', 'unmatched'
@@ -26,28 +24,30 @@ export default function CallLogPage({ } : CallLogPageProps) {
   };
 
   // Filter call log based on matched status and search term
-  const filteredCallLog = callLog.filter((entry) => {
-    // Filter by matched status
-    if (filterMatched === 'matched' && !entry.matched) return false;
-    if (filterMatched === 'unmatched' && entry.matched) return false;
-    
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        entry.to.toLowerCase().includes(searchLower) ||
-        entry.callerID.toLowerCase().includes(searchLower) ||
-        entry.url.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    return true;
-  });
+  const filteredCallLog = callLog
+    .filter((entry) => {
+      // Filter by matched status
+      if (filterMatched === 'matched' && !entry.matched) return false;
+      if (filterMatched === 'unmatched' && entry.matched) return false;
+
+      // Filter by search term
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          entry.to.toLowerCase().includes(searchLower) ||
+          entry.callerID.toLowerCase().includes(searchLower) ||
+          entry.url.toLowerCase().includes(searchLower)
+        );
+      }
+
+      return true;
+    })
+    .sort((a, b) => b.at - a.at);
 
   return (
     <div className="call-log-container">
       <h1 className="call-log-title">Call Log</h1>
-      
+
       <div className="call-log-controls">
         <div className="search-container">
           <input
@@ -58,7 +58,7 @@ export default function CallLogPage({ } : CallLogPageProps) {
             className="text-input search-input"
           />
         </div>
-        
+
         <div className="filter-container">
           <label htmlFor="filter-matched">Filter:</label>
           <select
@@ -73,7 +73,7 @@ export default function CallLogPage({ } : CallLogPageProps) {
           </select>
         </div>
       </div>
-      
+
       <div className="table-container">
         <table className="calls-table">
           <thead>
@@ -82,6 +82,7 @@ export default function CallLogPage({ } : CallLogPageProps) {
               <th>To</th>
               <th>Caller ID</th>
               <th>URL</th>
+              <th>Matched Rule</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -93,12 +94,30 @@ export default function CallLogPage({ } : CallLogPageProps) {
                   <td>{call.to}</td>
                   <td>{call.callerID}</td>
                   <td className="url-cell">
-                    <a href={call.url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={call.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {call.url}
                     </a>
                   </td>
                   <td>
-                    <span className={`status-badge ${call.matched ? 'matched' : 'unmatched'}`}>
+                    {(() => {
+                      let matchedRule = settings.mappingRules?.find(
+                        (rule) => rule.id === call.matchID,
+                      );
+
+                      if (call.matchID === undefined) return '-';
+                      return matchedRule?.description
+                        ? matchedRule.description
+                        : matchedRule?.pattern || '-';
+                    })()}
+                  </td>
+                  <td>
+                    <span
+                      className={`status-badge ${call.matched ? 'matched' : 'unmatched'}`}
+                    >
                       {call.matched ? 'Matched' : 'Unmatched'}
                     </span>
                   </td>
@@ -106,7 +125,7 @@ export default function CallLogPage({ } : CallLogPageProps) {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="empty-table-message">
+                <td colSpan={6} className="empty-table-message">
                   {callLog.length === 0
                     ? 'No calls in the log yet.'
                     : 'No calls match your current filters.'}

@@ -17,6 +17,7 @@ import path from 'path';
 import { ZoomCallManagerMessage, ZoomCallManagerType } from '../shared/ipc';
 import Registry from 'rage-edit';
 import { EPage } from '../shared/Page';
+import { CallLogEntry } from '../renderer/context/SettingsContext';
 
 async function setupAssociations() {
   if (process.defaultApp) {
@@ -256,8 +257,9 @@ async function deepLinkHandler(arg: string): Promise<boolean> {
           to: e164Number,
           callerID: zoomNumber,
           matched: !!matchingRule,
+          matchID: matchingRule?.id,
           at: Date.now(),
-        });
+        } as CallLogEntry);
       } else {
         dialog.showErrorBox(
           'An error occurred',

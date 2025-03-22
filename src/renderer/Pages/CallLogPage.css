@@ -125,6 +125,13 @@
   color: #e74c3c;
 }
 
+.rule-cell {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .empty-table-message {
   color: #888;
   font-style: italic;
