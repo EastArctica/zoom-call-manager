@@ -1,0 +1,22 @@
+.ctrl-btn {
+  height: 48px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #5d5d5d;
+}
+
+.ctrl-btn:hover {
+  color: #ffffff;
+}
+
+.close-container:hover {
+  background-color: #e81123;
+}
+
+.minimize-container:hover {
+  background-color: #191919;
+}

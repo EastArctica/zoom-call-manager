@@ -1,0 +1,145 @@
+.call-log-container {
+  padding: 20px;
+  color: #ffffff;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.call-log-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  margin-top: 0px;
+  color: #ffffff;
+}
+
+.call-log-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.search-container {
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+}
+
+.filter-container label {
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.select-input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.table-container {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.calls-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
+}
+
+.calls-table th {
+  text-align: left;
+  padding: 12px 15px;
+  border-bottom: 1px solid #444;
+  color: #aaa;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.calls-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #333;
+  font-size: 0.9rem;
+}
+
+.calls-table tr:last-child td {
+  border-bottom: none;
+}
+
+.calls-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.url-cell {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.url-cell a {
+  color: #4a9eff;
+  text-decoration: none;
+}
+
+.url-cell a:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.matched {
+  background-color: rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+}
+
+.status-badge.unmatched {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+}
+
+.empty-table-message {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .call-log-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-container {
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,89 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #202020;
+  height: calc(100vh - 48px);
+  width: 180px;
+  transition: width 0.3s ease-in-out;
+  position: relative;
+}
+
+.sidebar.collapsed {
+  width: 50px;
+}
+
+.sidebar-toggle {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.2s;
+  margin-right: 5px;
+}
+
+.sidebar-toggle:hover {
+  color: #fff;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebar-entry-wrapper {
+  width: 100%;
+}
+
+/* SidebarEntry styles */
+.sidebar-entry {
+  display: flex;
+  align-items: center;
+  margin: 2px 5px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    width 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  height: 36px;
+  /* minus margin size */
+  width: calc(100% - 10px);
+  border-radius: 5px;
+}
+
+.sidebar.collapsed .sidebar-entry {
+  width: 40px;
+}
+
+.sidebar-entry:hover, .sidebar-entry.selected {
+  background-color: #2d2d2d;
+}
+
+.sidebar-icon {
+  min-width: 22px;
+  margin-right: 10px;
+  margin-left: 9px;
+  color: #fff;
+}
+
+.sidebar-text {
+  color: #ddd;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Animation for the text inside SidebarEntry */
+.sidebar.collapsed .sidebar-text {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.sidebar .sidebar-text {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+}
