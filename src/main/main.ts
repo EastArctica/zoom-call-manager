@@ -222,10 +222,13 @@ app.on('window-all-closed', () => {
 
 // Note that this function does *not* assume that the argument is a valid deep link.
 async function deepLinkHandler(arg: string): Promise<boolean> {
+  console.log('Got arg');
   const url = new URL(arg);
+  console.log('Got url');
   if (!['zoom-call-manager:', 'tel:', 'callto:'].includes(url.protocol)) {
     return false;
   }
+  console.log(url);
   switch (url.protocol) {
     case 'zoom-call-manager:': {
       zoomCodeURL = arg;
@@ -310,11 +313,14 @@ function findMatchingRule(
 async function main() {
   const gotTheLock = app.requestSingleInstanceLock();
   if (!gotTheLock) {
+    console.error('Failed to get single instance lock.');
     app.quit();
   } else {
     app.on('second-instance', (event, commandLine, workingDirectory) => {
       let lastArg = commandLine.pop() as string;
-      deepLinkHandler(lastArg);
+      deepLinkHandler(lastArg).catch((e) => {
+        console.error('Failed to parse deep link:', lastArg, e);
+      });
 
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore();
@@ -330,7 +336,11 @@ async function main() {
     });
 
     let lastArg = process.argv.pop() as string;
-    if (await deepLinkHandler(lastArg)) {
+    const shouldExit = await deepLinkHandler(lastArg).catch((e) => {
+      console.error('Failed to parse deep link:', lastArg, e);
+    });
+    if (shouldExit) {
+      console.log('Exiting early');
       process.exit();
     }
 
