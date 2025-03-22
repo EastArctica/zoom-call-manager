@@ -110,7 +110,7 @@
     "webpack-merge": "^6.0.1"
   },
   "build": {
-    "productName": "ZoomCallManager",
+    "productName": "Zoom Call Manager",
     "appId": "ca.eastarcti.ZoomCallManager",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
