@@ -167,6 +167,22 @@ export default function SettingsPage() {
           </label>
         </div>
       </div>
+
+      <div className="settings-section">
+        <h2 className="section-title">Tel Protocol Handler</h2>
+        <p className="section-description">
+          Set this app as the default handler for tel: links. This allows you to click on phone numbers in your browser and have them automatically handled by Zoom Call Manager.
+        </p>
+
+        <div className="import-export-buttons">
+          <button
+            onClick={() => window.electron.ipcRenderer.sendMessage('associate-tel')}
+            className="button primary-button"
+          >
+            Set as Default Tel Handler
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

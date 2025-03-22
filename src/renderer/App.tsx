@@ -24,14 +24,7 @@ import {
   ZoomAccessTokenResponse,
 } from '../shared/zoom';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
-
-enum EPage {
-  Login,
-  Home,
-  Settings,
-  Call_Log,
-  About,
-}
+import { EPage } from '../shared/Page';
 
 async function saveTokenInfo(tokenInfo: ZoomAccessTokenResponse) {
   return {
@@ -80,6 +73,12 @@ function Main() {
   window.electron.ipcRenderer.sendMessage('zoom-call-manager', {
     type: ZoomCallManagerType.REQUEST_ZOOM_CODE,
   } as ZoomCallManagerMessage);
+
+  useEffect(() => {
+    return window.electron.ipcRenderer.on('page-changed', (page: EPage) => {
+      setPage(page);
+    });
+  }, []);
 
   // Keep checking settings to check if we've logged in
   useEffect(() => {

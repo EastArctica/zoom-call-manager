@@ -4,7 +4,11 @@ export type Channels =
   | 'read-settings'
   | 'save-settings'
   | 'zoom-call-manager'
-  | 'minimize';
+  | 'minimize'
+  | 'associate-tel'
+  | 'check-tel-handler'
+  | 'set-page'
+  | 'page-changed';
 
 const electronHandler = {
   ipcRenderer: {
@@ -22,6 +26,9 @@ const electronHandler = {
     },
     once(channel: Channels, func: (...args: any[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
+    },
+    invoke(channel: string, ...args: any[]): Promise<any> {
+      return ipcRenderer.invoke(channel, ...args);
     },
   },
 };

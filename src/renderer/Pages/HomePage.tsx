@@ -4,6 +4,7 @@ import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import './HomePage.css';
 import { useSettings } from '../context/SettingsContext';
 import Banner from '../components/Banner';
+import { EPage } from '../../shared/Page';
 
 // Define the interface for a mapping rule
 export interface MappingRule {
@@ -15,6 +16,7 @@ export interface MappingRule {
 
 export default function HomePage() {
   const { settings, updateSettings } = useSettings();
+  const [isCurrentTelHandler, setIsCurrentTelHandler] = useState<boolean>(true);
 
   // State for the mapping rules
   const [mappingRules, setMappingRules] = useState<MappingRule[]>(
@@ -74,6 +76,27 @@ export default function HomePage() {
     settings.mappingRules,
     settings.defaultCallerId,
   ]);
+
+  // Check if the app is the current tel handler
+  useEffect(() => {
+    const checkTelHandler = async () => {
+      try {
+        const isHandler =
+          await window.electron.ipcRenderer.invoke('check-tel-handler');
+        setIsCurrentTelHandler(isHandler);
+      } catch (error) {
+        console.error('Error checking tel handler:', error);
+        setIsCurrentTelHandler(false);
+      }
+    };
+
+    checkTelHandler();
+  }, []);
+
+  // Navigate to settings page
+  const goToSettings = () => {
+    window.electron.ipcRenderer.sendMessage('set-page', EPage.Settings);
+  };
 
   // Handle input changes for the new rule form
   const handleInputChange = (
@@ -164,11 +187,21 @@ export default function HomePage() {
       <h1 className="home-title">Home</h1>
 
       {/* Banners for missing configurations */}
+      {!isCurrentTelHandler && (
+        <Banner
+          type="warning"
+          message="This app is not set as the default handler for tel: links. Set it as the default handler to enable automatic call handling."
+          actionText="Go to Settings"
+          onActionClick={goToSettings}
+        />
+      )}
+
       {availableCallerIds.length === 0 && (
         <Banner
           type="warning"
           message="You have no caller IDs configured. Please add caller IDs in the Settings page."
           actionText="Go to Settings"
+          onActionClick={goToSettings}
         />
       )}
 

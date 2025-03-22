@@ -15,6 +15,8 @@ import { readFile, writeFile } from 'fs/promises';
 import { parsePhoneNumber } from 'react-phone-number-input';
 import path from 'path';
 import { ZoomCallManagerMessage, ZoomCallManagerType } from '../shared/ipc';
+import Registry from 'rage-edit';
+import { EPage } from '../shared/Page';
 
 async function setupAssociations() {
   if (process.defaultApp) {
@@ -87,8 +89,41 @@ ipcMain.on('zoom-call-manager', async (event, msg: ZoomCallManagerMessage) => {
   }
 });
 
+// Misc
 ipcMain.on('minimize', () => {
   BrowserWindow.getFocusedWindow()?.minimize();
+});
+// Triggers a url association for the tel handler
+ipcMain.on('associate-tel', async () => {
+  await Registry.delete(
+    'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+  );
+  shell.openExternal('tel:');
+});
+
+// Check if the current app is the tel protocol handler
+async function isCurrentTelHandler(): Promise<boolean> {
+  try {
+    const userChoice = await Registry.get(
+      'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+      'ProgId',
+    );
+
+    return userChoice === 'Zoom Call Manager.tel';
+  } catch (error) {
+    console.error('Error checking tel handler:', error);
+    return false;
+  }
+}
+
+// IPC handler to check if the current app is the tel protocol handler
+ipcMain.handle('check-tel-handler', async () => {
+  return await isCurrentTelHandler();
+});
+
+// IPC handler to set the page in the main process
+ipcMain.on('set-page', (event, page: EPage) => {
+  event.sender.send('page-changed', page);
 });
 
 const isDebug =
