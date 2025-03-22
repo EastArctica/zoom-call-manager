@@ -3,6 +3,7 @@ import 'react-phone-number-input/style.css';
 import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import './HomePage.css';
 import { useSettings } from '../context/SettingsContext';
+import Banner from '../components/Banner';
 
 // Define the interface for a mapping rule
 export interface MappingRule {
@@ -162,11 +163,29 @@ export default function HomePage() {
     <div className="home-container">
       <h1 className="home-title">Home</h1>
 
+      {/* Banners for missing configurations */}
+      {availableCallerIds.length === 0 && (
+        <Banner
+          type="warning"
+          message="You have no caller IDs configured. Please add caller IDs in the Settings page."
+          actionText="Go to Settings"
+          // onActionClick={() => window.electron.ipcRenderer.sendMessage('navigate', '/settings')}
+        />
+      )}
+
+      {availableCallerIds.length > 0 && mappingRules.length === 0 && (
+        <Banner
+          type="info"
+          message="You have no mapping rules configured. Add rules below to map incoming calls to specific Zoom numbers."
+        />
+      )}
+
       {/* Default Caller ID */}
       <div className="section">
         <h2 className="section-title">Default Caller ID</h2>
         <p className="section-description">
-          Set the default caller ID to use for outgoing calls when no mapping rule matches.
+          Set the default caller ID to use for outgoing calls when no mapping
+          rule matches.
         </p>
         <div className="form-group">
           <select
@@ -189,7 +208,8 @@ export default function HomePage() {
       <div className="section">
         <h2 className="section-title">Add New Mapping Rule</h2>
         <p className="section-description">
-          Create rules to map incoming phone numbers to specific Zoom phone numbers.
+          Create rules to map incoming phone numbers to specific Zoom phone
+          numbers.
         </p>
         <div className="form">
           <div className="form-group">
@@ -262,7 +282,8 @@ export default function HomePage() {
       <div className="section">
         <h2 className="section-title">Mapping Rules</h2>
         <p className="section-description">
-          Manage your existing mapping rules between phone number patterns and Zoom phone numbers.
+          Manage your existing mapping rules between phone number patterns and
+          Zoom phone numbers.
         </p>
         <div className="table-container">
           <table className="rules-table">
