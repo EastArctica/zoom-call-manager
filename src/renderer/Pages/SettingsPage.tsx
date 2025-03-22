@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import './SettingsPage.css';
+import { Settings } from '../../main/settings';
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettings();
@@ -41,7 +42,12 @@ export default function SettingsPage() {
 
   // Export settings as JSON
   const handleExportSettings = () => {
-    const settingsJson = JSON.stringify(settings, null, 2);
+    const cleanedSettings: Settings = JSON.parse(JSON.stringify(settings));
+    delete cleanedSettings.zoomAccessToken;
+    delete cleanedSettings.zoomRefreshToken;
+    delete cleanedSettings.zoomTokenExpiration;
+
+    const settingsJson = JSON.stringify(cleanedSettings, null, 2);
     const blob = new Blob([settingsJson], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
@@ -171,12 +177,16 @@ export default function SettingsPage() {
       <div className="settings-section">
         <h2 className="section-title">Tel Protocol Handler</h2>
         <p className="section-description">
-          Set this app as the default handler for tel: links. This allows you to click on phone numbers in your browser and have them automatically handled by Zoom Call Manager.
+          Set this app as the default handler for tel: links. This allows you to
+          click on phone numbers in your browser and have them automatically
+          handled by Zoom Call Manager.
         </p>
 
         <div className="import-export-buttons">
           <button
-            onClick={() => window.electron.ipcRenderer.sendMessage('associate-tel')}
+            onClick={() =>
+              window.electron.ipcRenderer.sendMessage('associate-tel')
+            }
             className="button primary-button"
           >
             Set as Default Tel Handler
