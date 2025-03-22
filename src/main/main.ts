@@ -13,7 +13,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { readFile, writeFile } from 'fs/promises';
 import { Registry } from 'rage-edit';
-import parsePhoneNumberWithError from 'libphonenumber-js/max';
+import { parsePhoneNumber } from 'react-phone-number-input';
 import path from 'path';
 import { ZoomCallManagerMessage, ZoomCallManagerType } from '../shared/ipc';
 
@@ -241,7 +241,7 @@ async function deepLinkHandler(arg: string) {
       console.log(url);
 
       const phoneNumberStr = url.pathname;
-      const parsedPhoneNumber = parsePhoneNumberWithError(phoneNumberStr, 'US');
+      const parsedPhoneNumber = parsePhoneNumber(phoneNumberStr, 'US');
       if (parsedPhoneNumber) {
         const e164Number = parsedPhoneNumber.format('E.164');
         const matchingRule = findMatchingRule(
