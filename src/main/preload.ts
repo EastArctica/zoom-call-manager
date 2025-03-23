@@ -6,7 +6,8 @@ export type Channels =
   | 'zoom-call-manager'
   | 'minimize'
   | 'associate-tel'
-  | 'check-tel-handler'
+  | 'get-tel-handler'
+  | 'force-tel-handler'
   | 'set-page'
   | 'page-changed';
 
@@ -27,7 +28,7 @@ const electronHandler = {
     once(channel: Channels, func: (...args: any[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
-    invoke(channel: string, ...args: any[]): Promise<any> {
+    invoke(channel: Channels, ...args: any[]): Promise<any> {
       return ipcRenderer.invoke(channel, ...args);
     },
   },

@@ -3,14 +3,29 @@
 - Set default tel handler
 */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSettings, Settings } from '../context/SettingsContext';
 import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import './SettingsPage.css';
+import { TelHandler } from '../../shared/ipc';
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettings();
   const [newCallerId, setNewCallerId] = useState('');
+  const [currentTelHandler, setCurrentTelHandler] = useState<TelHandler | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const getCurrentHandler = async () => {
+      const handler = (await window.electron.ipcRenderer.invoke(
+        'get-tel-handler',
+      )) as TelHandler;
+      setCurrentTelHandler(handler);
+    };
+
+    getCurrentHandler();
+  }, []);
 
   // Function to add a new caller ID
   const handleAddCallerId = () => {
@@ -177,16 +192,75 @@ export default function SettingsPage() {
       <div className="settings-section">
         <h2 className="section-title">Tel Protocol Handler</h2>
         <p className="section-description">
-          Set this app as the default handler for tel: links. This allows you to
-          click on phone numbers in your browser and have them automatically
-          handled by Zoom Call Manager.
+          Set this app as the default handler for <b>tel:</b> links. This allows
+          you to click on phone numbers in your browser and have them
+          automatically handled by Zoom Call Manager.
+        </p>
+        <p className="section-description">
+          Your current tel protocol handler is:{' '}
+          <b>{currentTelHandler?.progId}</b>
         </p>
 
         <div className="import-export-buttons">
+          {settings.previousTelHandler &&
+          settings.previousTelHandler.progId !== currentTelHandler?.progId ? (
+            <button
+              onClick={async () => {
+                window.electron.ipcRenderer.sendMessage(
+                  'force-tel-handler',
+                  settings.previousTelHandler,
+                );
+
+                const handler = (await window.electron.ipcRenderer.invoke(
+                  'get-tel-handler',
+                )) as TelHandler;
+                setCurrentTelHandler(handler);
+              }}
+              className="button primary-button"
+            >
+              Revert to {settings.previousTelHandler.progId}
+            </button>
+          ) : (
+            ''
+          )}
+
           <button
-            onClick={() =>
-              window.electron.ipcRenderer.sendMessage('associate-tel')
-            }
+            onClick={() => {
+              if (
+                currentTelHandler &&
+                currentTelHandler.progId !== 'Zoom Call Manager.tel'
+              ) {
+                settings.previousTelHandler = currentTelHandler;
+              }
+
+              // When we call the handler change, it will first change to '', then to the actual new handler
+              let currentStage = 'pre-disassociate';
+              async function checkAssociation() {
+                const handler = (await window.electron.ipcRenderer.invoke(
+                  'get-tel-handler',
+                )) as TelHandler;
+
+                if (
+                  currentStage === 'pre-disassociate' &&
+                  (typeof handler.progId === 'undefined' ||
+                    (typeof handler.progId !== 'undefined' &&
+                      handler.progId !== currentTelHandler?.progId))
+                ) {
+                  currentStage = 'disassociated';
+                } else if (
+                  currentStage == 'disassociated' &&
+                  typeof handler.progId !== 'undefined'
+                ) {
+                  currentStage = 're-associated';
+                  setCurrentTelHandler(handler);
+                  clearInterval(checkInterval);
+                }
+              }
+              const checkInterval = setInterval(checkAssociation, 50);
+              checkAssociation();
+
+              window.electron.ipcRenderer.sendMessage('associate-tel');
+            }}
             className="button primary-button"
           >
             Set as Default Tel Handler

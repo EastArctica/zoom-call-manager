@@ -5,6 +5,7 @@ import './HomePage.css';
 import { useSettings } from '../context/SettingsContext';
 import Banner from '../components/Banner';
 import { EPage } from '../../shared/Page';
+import { TelHandler } from '../../shared/ipc';
 
 // Define the interface for a mapping rule
 export interface MappingRule {
@@ -81,9 +82,12 @@ export default function HomePage() {
   useEffect(() => {
     const checkTelHandler = async () => {
       try {
-        const isHandler =
-          await window.electron.ipcRenderer.invoke('check-tel-handler');
-        setIsCurrentTelHandler(isHandler);
+        const currentHandler = (await window.electron.ipcRenderer.invoke(
+          'get-tel-handler',
+        )) as TelHandler;
+        setIsCurrentTelHandler(
+          currentHandler.progId == 'Zoom Call Manager.tel',
+        );
       } catch (error) {
         console.error('Error checking tel handler:', error);
         setIsCurrentTelHandler(false);

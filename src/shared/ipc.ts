@@ -7,3 +7,8 @@ export type ZoomCallManagerMessage = {
   type: ZoomCallManagerType;
   data: any;
 };
+
+export type TelHandler = {
+  hash: string;
+  progId: string;
+};

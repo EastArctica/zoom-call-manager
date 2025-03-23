@@ -14,7 +14,11 @@ import { resolveHtmlPath } from './util';
 import { readFile, writeFile } from 'fs/promises';
 import { parsePhoneNumber } from 'react-phone-number-input';
 import path from 'path';
-import { ZoomCallManagerMessage, ZoomCallManagerType } from '../shared/ipc';
+import {
+  TelHandler,
+  ZoomCallManagerMessage,
+  ZoomCallManagerType,
+} from '../shared/ipc';
 import Registry from 'rage-edit';
 import { EPage } from '../shared/Page';
 import { CallLogEntry } from '../renderer/context/SettingsContext';
@@ -102,24 +106,39 @@ ipcMain.on('associate-tel', async () => {
   shell.openExternal('tel:');
 });
 
-// Check if the current app is the tel protocol handler
-async function isCurrentTelHandler(): Promise<boolean> {
-  try {
-    const userChoice = await Registry.get(
-      'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
-      'ProgId',
-    );
+ipcMain.on('force-tel-handler', async (_event, msg: TelHandler) => {
+  await Registry.setValue(
+    'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+    'ProgId',
+    msg.progId,
+  );
+  await Registry.setValue(
+    'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+    'Hash',
+    msg.hash,
+  );
+});
 
-    return userChoice === 'Zoom Call Manager.tel';
+// IPC handler to get the current tel protocol handler
+ipcMain.handle('get-tel-handler', async () => {
+  try {
+    return {
+      progId: await Registry.get(
+        'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+        'ProgId',
+      ),
+      hash: await Registry.get(
+        'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
+        'Hash',
+      ),
+    };
   } catch (error) {
     console.error('Error checking tel handler:', error);
-    return false;
+    return {
+      progId: 'Unknown',
+      hash: '',
+    };
   }
-}
-
-// IPC handler to check if the current app is the tel protocol handler
-ipcMain.handle('check-tel-handler', async () => {
-  return await isCurrentTelHandler();
 });
 
 // IPC handler to set the page in the main process

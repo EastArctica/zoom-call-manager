@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { MappingRule } from '../Pages/HomePage';
+import { TelHandler } from '../../shared/ipc';
 
 function readSettingsFromStorage() {
   const settingsPromise: Promise<Settings> = new Promise((resolve) => {
@@ -39,6 +40,7 @@ export interface Settings {
   zoomRefreshToken?: string;
   zoomTokenExpiration?: number;
   callLog?: CallLogEntry[];
+  previousTelHandler?: TelHandler;
 }
 
 interface SettingsContextType {
