@@ -43,8 +43,11 @@ export default function TitleBar() {
         >
           <VscChromeMinimize size={20} />
         </div>
-        <div className="ctrl-btn close-container">
-          <VscChromeClose size={20} onClick={() => window.close()} />
+        <div
+          className="ctrl-btn close-container"
+          onClick={() => window.close()}
+        >
+          <VscChromeClose size={20} />
         </div>
       </div>
     </div>
