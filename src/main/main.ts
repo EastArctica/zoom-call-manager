@@ -103,6 +103,9 @@ ipcMain.on('associate-tel', async () => {
   await Registry.delete(
     'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
   );
+  await Registry.delete(
+    'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoiceLatest',
+  );
   shell.openExternal('tel:');
 });
 
@@ -122,7 +125,21 @@ ipcMain.on('force-tel-handler', async (_event, msg: TelHandler) => {
 // IPC handler to get the current tel protocol handler
 ipcMain.handle('get-tel-handler', async () => {
   try {
-    return {
+    const userChoiceLatest = {
+      progId: await Registry.get(
+        'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoiceLatest\\ProgId',
+        'ProgId',
+      ),
+      hash: await Registry.get(
+        'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoiceLatest',
+        'Hash',
+      ),
+    };
+    if (userChoiceLatest.progId && userChoiceLatest.hash) {
+      return userChoiceLatest
+    }    
+
+    const userChoice = {
       progId: await Registry.get(
         'HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\tel\\UserChoice',
         'ProgId',
@@ -132,6 +149,7 @@ ipcMain.handle('get-tel-handler', async () => {
         'Hash',
       ),
     };
+    return userChoice;
   } catch (error) {
     console.error('Error checking tel handler:', error);
     return {
