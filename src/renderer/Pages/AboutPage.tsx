@@ -9,7 +9,7 @@ export default function AboutPage({}: AboutPageProps) {
 
       <div className="about-section">
         <h2 className="section-title">Zoom Call Manager</h2>
-        <p className="version">Version 1.0.2</p>
+        <p className="version">Version 1.0.3</p>
 
         <p className="section-description">
           Zoom Call Manager is a desktop application designed to simplify the
